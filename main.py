@@ -46,7 +46,6 @@ cam = None
 vs = None
 window_name = ""
 elapsedtime = 0.0
-pdf = FPDF()
 
 g_plugin = None
 g_inferred_request = None
@@ -56,6 +55,7 @@ g_number_of_allocated_ncs = 0
 g_files_em = {}
 oldTime = 0
 LABELS = ["neutral", "happy", "sad", "surprise", "anger"]
+oldEm = "neutral"
 COLORS = np.random.uniform(0, 255, size=(len(LABELS), 3))
 
 def camThread(LABELS, resultsEm, frameBuffer, camera_width, camera_height, vidfps, number_of_camera, mode_of_camera):
@@ -269,14 +269,13 @@ class NcsWorkerEm(BaseNcsWorker):
     def __init__(self, devid, resultsFd, resultsEm, model_path, number_of_ncs, files):
         global oldTime
         global pdf
+        global oldEm
         super().__init__(devid, model_path, number_of_ncs)
         self.resultsFd = resultsFd
         self.resultsEm = resultsEm
         self.files_em = files
         oldTime = int(time.time())
-        pdf.add_page()
-        pdf.set_font('Arial', 'B', 60)
-        pdf.set_auto_page_break(False)
+        oldEm = LABELS[0]
 
     def image_preprocessing(self, color_image):
 
@@ -292,6 +291,7 @@ class NcsWorkerEm(BaseNcsWorker):
     def predict_async(self):
         global oldTime
         global pdf
+        global oldEm
         try:
 
             if self.resultsFd.empty():
@@ -346,18 +346,27 @@ class NcsWorkerEm(BaseNcsWorker):
                     emotion = LABELS[int(np.argmax(out))]
                     data = self.files_em[emotion]
                     print(emotion)
-                    sentence = data["phr"][int(time.time() / 3600) % len(data["phr"])]
+                    sentence = data["phr"][int(time.time() / 360) % len(data["phr"])]
                     regex = re.compile("{[\S]+}")
                     index = 0
                     while re.search(regex, sentence) is not None:
                         pattern = re.search(regex, sentence).group(0)
                         word = pattern.replace("{", "")
                         word = word.replace("}", "")
-                        sentence = sentence.replace(pattern, data[word][int(out[index % len(out)] * len(data[word]))], 1)
+                        sentence = sentence.replace(pattern, data[word][int(out[index % len(out)] * (len(data[word])) - 1)], 1)
                         index = index + 1
-                    if int(time.time()) != oldTime :
+                    if oldEm != emotion :
+                        oldEm = emotion
+                        oldTime = int(time.time())
+                    if int(time.time()) > oldTime and emotion != LABELS[0] or time.time() > oldTime + 2 and emotion == LABELS[0] :
+                        sentence = sentence.lower()
+                        sentence = sentence.capitalize()
                         print(sentence)
-                        pdf.multi_cell(200, 20, sentence, "L")
+                        pdf = FPDF()
+                        pdf.add_page()
+                        pdf.set_font('Arial', '', 54 / (len(sentence) / (20 * 9)))
+                        pdf.set_auto_page_break(False)
+                        pdf.multi_cell(180, 24, sentence, 0, "L")
                         pdf.output("./media/" + str(int(time.time())) + ".pdf", 'F')
                         oldTime = int(time.time())
                         cv2.imwrite("./media/" + str(int(time.time())) + ".png", face_image_list[image_idx - 1])
@@ -485,7 +494,7 @@ if __name__ == '__main__':
     em_model_path = args.em_model_path
     try:
         for val in LABELS:
-            with open("data_pipotron_" + val + ".json", "r") as read_file:
+            with open("data_pipotron_" + val + ".json", "r", encoding = "utf-8") as read_file:
                 data = json.load(read_file)
                 g_files_em[val] = data
         mp.set_start_method('forkserver')
