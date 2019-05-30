@@ -1,31 +1,31 @@
 {
-	"nom.s": [
-		"le succès",
-		"la croissance",
-		"le plein emploi",
-		"l'avantage concurrentiel",
-		"le gain",
-		"la réussite",
-		"la promotion",
-		"la relance",
-		"la prouesse",
-		"l'essor",
-		"le développement",
-		"le progrès",
-		"la valorisation",
-		"la hausse",
-		"la baisse",
-		"la renaissance",
-		"l'humanisme",
-		"la compensation",
-		"la cotisation",
-		"l'intérêt du peuple",
-		"le renouveau",
-		"la modernisation",
-		"la dérogation",
-		"l'exemption"
-
-
+	"nom.s.M" : [
+	"le succès",
+	"le plein emploi",
+	"l’avantage concurrentiel",
+	"le gain",
+	"l’essor",
+	"le développement",
+	"le progrès",
+	"l’humanisme",
+	"la compensation",
+	"la cotisation",
+	"l’intérêt du peuple",
+	"le renouveau"
+	],
+	"nom.s.F" : [
+	"la modernisation",
+	"la dérogation",
+	"l’exemption",
+	"la croissance",
+	"la réussite",
+	"la promotion",
+	"la relance",
+	"la prouesse",
+	"la valorisation",
+	"la hausse",
+	"la baisse",
+	"la renaissance"
 	],
 	"verb.s": [
 		"triomphe",
@@ -50,32 +50,45 @@
 
 
 	],
-	"nom.p": [
-		"les changements",
-		"les circonstances",
-		"les rectifications",
-		"les évolutions",
-		"les amendements",
-		"les innovations",
-		"les nouveautés",
-		"les mises en marché",
-		"les commercialisations",
-		"les réformes"
-
-
+	"nom.p.M" : [
+	"les changements",
+	"les amendements",
+	"les nouveautés"
 	],
-	"adj.p": [
-		"semblables",
-		"équitables",
-		"actionnables",
-		"automatisables",
-		"considérables",
-		"développables",
-		"planifiables",
-		"probables",
-		"crédibles",
-		"renouvelables"
+		"nom.p.F" : [
+	"les innovations",
+	"les nouveautées",
+	"les mises en marché",
+	"les commercialisations",
+	"les réformes"
+	"les circonstances",
+	"les rectifications",
+	"les évolutions"
+	],
+		"adj.p.M": [
+	"semblables",
+	"équitables",
+	"actionnables",
+	"automatisables",
+	"considérables",
+	"développables",
+	"planifiables",
+	"probables",
+	"crédibles",
+	"renouvelables"
 
+		],
+		"adj.p.F": [
+	"semblables",
+	"équitables",
+	"actionnables",
+	"automatisables",
+	"considérables",
+	"développables",
+	"planifiables",
+	"probables",
+	"crédibles",
+	"renouvelables"
 	],
 	"cod": [
 		"du renouvellement",
@@ -94,10 +107,14 @@
 
 	],
 	"prop": [
-		"{nom.s} {verb.s} {nom.p} {adj.p} {cod}"
+		"{nom.s.F} {verb.s} {nom.p.F} {adj.p.F} {cod}",
+		"{nom.s.M} {verb.s} {nom.p.F} {adj.p.F} {cod}",
+		"{nom.s.F} {verb.s} {nom.p.M} {adj.p.M} {cod}",
+		"{nom.s.M} {verb.s} {nom.p.M} {adj.p.M} {cod}"
 	],
 	
 	"phr": [
+		"{prop}",
 		"s'il est vrai que {prop}, n'oublions pas que seul {prop}.",
 		"en effet, {prop}, mais, malgré tout {prop}.",
 		"{prop} de part le fait que {prop}.",

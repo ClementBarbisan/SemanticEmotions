@@ -346,7 +346,8 @@ class NcsWorkerEm(BaseNcsWorker):
                     emotion = LABELS[int(np.argmax(out))]
                     data = self.files_em[emotion]
                     print(emotion)
-                    sentence = data["phr"][int(time.time() / 360) % len(data["phr"])]
+                    #sentence = data["phr"][int(time.time() / 360) % len(data["phr"])]
+                    sentence = random.choice(data["phr"])
                     regex = re.compile("{[\S]+}")
                     index = 0
                     while re.search(regex, sentence) is not None:
