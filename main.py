@@ -29,6 +29,7 @@ import logging as log
 import random
 import re
 from fpdf import FPDF
+from tkinter import *
 
 
 lastresults = None
@@ -46,16 +47,15 @@ cam = None
 vs = None
 window_name = ""
 elapsedtime = 0.0
-
+sentence = ""
+dirty_sentence = True
 g_plugin = None
 g_inferred_request = None
 g_heap_request = None
 g_inferred_cnt = 0
 g_number_of_allocated_ncs = 0
 g_files_em = {}
-oldTime = 0
 LABELS = ["neutral", "happy", "sad", "surprise", "anger"]
-oldEm = "neutral"
 COLORS = np.random.uniform(0, 255, size=(len(LABELS), 3))
 
 def camThread(LABELS, resultsEm, frameBuffer, camera_width, camera_height, vidfps, number_of_camera, mode_of_camera):
@@ -69,8 +69,8 @@ def camThread(LABELS, resultsEm, frameBuffer, camera_width, camera_height, vidfp
     global cam
     global vs
     global window_name
-    global oldTime
-    oldTime = int(time.time())
+
+    
     if mode_of_camera == 0:
         cam = cv2.VideoCapture(number_of_camera)
         if cam.isOpened() != True:
@@ -85,8 +85,8 @@ def camThread(LABELS, resultsEm, frameBuffer, camera_width, camera_height, vidfp
         sleep(3)
         window_name = "PiCamera"
 
-    cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
-
+    #cv2.namedWindow(window_name, cv2.WINDOW_AUTOSIZE)
+    
     while True:
         t1 = time.perf_counter()
 
@@ -109,16 +109,15 @@ def camThread(LABELS, resultsEm, frameBuffer, camera_width, camera_height, vidfp
         res = None
 
         #if not resultsEm.empty():
-            #res = resultsEm.get(False)
-            #detectframecount += 1
-            #imdraw = overlay_on_image(frames, res)
-            #lastresults = res
+        #    res = resultsEm.get(False)
+        #    detectframecount += 1
+        #    imdraw = overlay_on_image(frames, res)
+        #    lastresults = res
         #else:
+        #    imdraw = overlay_on_image(frames, lastresults)
         
-        #imdraw = overlay_on_image(frames, lastresults)
-        
-        cv2.imshow(window_name, cv2.resize(frames, (width, height)))
-        
+        #cv2.imshow(window_name, cv2.resize(frames, (width, height)))
+        #cv2.imshow(window_name, cv2.resize(imdraw, (width, height)))
         if cv2.waitKey(1)&0xFF == ord('q'):
             sys.exit(0)
 
@@ -136,7 +135,6 @@ def camThread(LABELS, resultsEm, frameBuffer, camera_width, camera_height, vidfp
         time1 += 1/elapsedTime
         time2 += elapsedTime
 
-
 # l = Search list
 # x = Search target value
 def searchlist(l, x, notfoundvalue=-1):
@@ -151,7 +149,6 @@ def async_infer(ncsworkerFd, ncsworkerEm):
     while True:
         ncsworkerFd.predict_async()
         ncsworkerEm.predict_async()
-
 
 class BaseNcsWorker():
 
@@ -265,17 +262,15 @@ class NcsWorkerFd(BaseNcsWorker):
 
 
 class NcsWorkerEm(BaseNcsWorker):
-    
+    sentence = ""
     def __init__(self, devid, resultsFd, resultsEm, model_path, number_of_ncs, files):
-        global oldTime
-        global pdf
-        global oldEm
+        
         super().__init__(devid, model_path, number_of_ncs)
         self.resultsFd = resultsFd
         self.resultsEm = resultsEm
         self.files_em = files
-        oldTime = int(time.time())
-        oldEm = LABELS[0]
+        self.oldEm = LABELS[0]
+        self.oldTime = int(time.time())
 
     def image_preprocessing(self, color_image):
 
@@ -287,11 +282,10 @@ class NcsWorkerEm(BaseNcsWorker):
         prepimg = prepimg.transpose((0, 3, 1, 2))  # NHWC to NCHW
         return prepimg
 
-
+   
     def predict_async(self):
-        global oldTime
-        global pdf
-        global oldEm
+        global sentence
+        global dirty_sentence
         try:
 
             if self.resultsFd.empty():
@@ -312,7 +306,7 @@ class NcsWorkerEm(BaseNcsWorker):
                 detection_list.extend([""])
                 self.resultsEm.put([detection_list])
                 return
-             
+            
             while True:
                 reqnum = searchlist(self.inferred_request, 0)
 
@@ -347,36 +341,54 @@ class NcsWorkerEm(BaseNcsWorker):
                     data = self.files_em[emotion]
                     print(emotion)
                     #sentence = data["phr"][int(time.time() / 360) % len(data["phr"])]
-                    sentence = random.choice(data["phr"])
-                    regex = re.compile("{[\S]+}")
-                    index = 0
-                    while re.search(regex, sentence) is not None:
-                        pattern = re.search(regex, sentence).group(0)
-                        word = pattern.replace("{", "")
-                        word = word.replace("}", "")
-                        sentence = sentence.replace(pattern, data[word][int(out[index % len(out)] * (len(data[word])) - 1)], 1)
-                        index = index + 1
-                    if oldEm != emotion :
-                        oldEm = emotion
-                        oldTime = int(time.time())
-                    if int(time.time()) > oldTime and emotion != LABELS[0] or time.time() > oldTime + 2 and emotion == LABELS[0] :
-                        sentence = sentence.lower()
+                    
+                    if self.oldEm != emotion :
+                        self.oldEm = emotion
+                        self.oldTime = int(time.time())
+                    if int(time.time()) > self.oldTime and emotion != LABELS[0] or time.time() > self.oldTime + 2 and emotion == LABELS[0] :
+                        index = 0
+                        tmpOut = out.copy()
+                        
+                        print(tmpOut)
+                        for i in range(0, len(out)) :
+                            if tmpOut[i] <= 0.2 :
+                                tmpOut[i] = tmpOut[i] * 5
+                        print(tmpOut)
+                        sentence = random.choice(data["phr"])
+                        regex = re.compile("{[\S]+}")
+                        while re.search(regex, sentence) is not None:
+                            if index % len(tmpOut) == 0 :
+                                random.shuffle(tmpOut)
+                                index = 0
+                                print(tmpOut)
+                            pattern = re.search(regex, sentence).group(0)
+                            word = pattern.replace("{", "")
+                            word = word.replace("}", "")
+                            sentence = sentence.replace(pattern, data[word][int(tmpOut[index] * (len(data[word])) - 1)], 1)
+                            index = index + 1
+                        dirty_sentence = True
+                        #sentence = sentence.lower()
                         sentence = sentence.capitalize()
                         print(sentence)
-                        pdf = FPDF()
+                        pdf = FPDF('P', 'mm', (645.56, 914))
+                        pdf.set_margins(22, 0)
                         pdf.add_page()
-                        pdf.set_font('Arial', '', 54 / (len(sentence) / (20 * 9)))
+                        pdf.set_font('Arial', '', 156 / (len(sentence) / (20 * 9)))
                         pdf.set_auto_page_break(False)
-                        pdf.multi_cell(180, 24, sentence, 0, "L")
+                        pdf.multi_cell(0, 156 / (len(sentence) / (20 * 9)) * 0.35 * 1.58, sentence, 0, 'L')    
+                        #for i in (0, len(sentence), 20) :
+                        #    pdf.cell(880, 150 / (len(sentence) / (20 * 9)) * 0.35 * 1.16, sentence[i : i + 20], 0, 1, 'L')
                         pdf.output("./media/" + str(int(time.time())) + ".pdf", 'F')
-                        oldTime = int(time.time())
+                        self.oldTime = int(time.time())
                         cv2.imwrite("./media/" + str(int(time.time())) + ".png", face_image_list[image_idx - 1])
+                        
                     detection_list.extend([emotion])
                     self.resultsEm.put([detection_list])
                     self.inferred_request[dev] = 0
                     end_cnt_processing += 1
                     if end_cnt_processing >= max_face_image_list_cnt:
                         break
+                    
                 else:
                     heapq.heappush(self.heap_request, (cnt, dev))
                     heapflg = True
@@ -387,9 +399,16 @@ class NcsWorkerEm(BaseNcsWorker):
 
 
 def inferencer(resultsFd, resultsEm, frameBuffer, number_of_ncs, fd_model_path, em_model_path, files):
-
+    global dirty_sentence
     # Init infer threads
     threads = []
+    window = Tk()
+    window.title("SemanticEmotions")
+    window.attributes("-fullscreen", True)
+    window.configure(background='white')
+    lbl = Message(window, text="Hello", font=("Arial", "56"), anchor="w")
+    lbl.pack()
+    lbl.configure(background='white')
     for devid in range(number_of_ncs):
         # Face Detection, Emotion Recognition start
         thworker = threading.Thread(target=async_infer, args=(NcsWorkerFd(devid, frameBuffer, resultsFd, fd_model_path, number_of_ncs),
@@ -397,6 +416,12 @@ def inferencer(resultsFd, resultsEm, frameBuffer, number_of_ncs, fd_model_path, 
         thworker.start()
         threads.append(thworker)
         print("Thread-"+str(devid))
+    while True:
+        if dirty_sentence :
+            lbl.configure(text=sentence, font=("Arial", "56"), anchor="w")
+            window.update_idletasks()
+            window.update()
+            dirty_sentence = False
 
     for th in threads:
         th.join()
@@ -493,8 +518,12 @@ if __name__ == '__main__':
     vidfps = args.fps_of_video
     fd_model_path = args.fd_model_path
     em_model_path = args.em_model_path
+    random.seed()
+    
     try:
+        
         for val in LABELS:
+            print("data_pipotron_" + val + ".json")
             with open("data_pipotron_" + val + ".json", "r", encoding = "utf-8") as read_file:
                 data = json.load(read_file)
                 g_files_em[val] = data
@@ -517,7 +546,7 @@ if __name__ == '__main__':
                        daemon=True)
         p.start()
         processes.append(p)
-
+        
         while True:
             sleep(1)
 

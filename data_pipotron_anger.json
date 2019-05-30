@@ -1,48 +1,48 @@
 {
 	"nom.s.M": [
 
-		"l’abattement",
+		"l'abattement",
 		"le déni",
 		"le désespoir",
 		"le refoulement",
-		"l’outrage",
+		"l'outrage",
 		"le ressentiment",
 		"le dépit",
 		"le manifestant",
 		"le déchaînement",
 		"le hurlement",
-		"l’emportement",
+		"l'emportement",
 		"le dégoût",
-		"l’agacement",
+		"l'agacement",
 		"le courroux",
 		"le mépris",
 		"le bordel",
-		"l’hérétisme"
+		"l'hérétisme"
 	],
 		"nom.s.F" : [
-	"l’amertume",
-	"la rancœur",
-	"l’interjection",
+	"l'amertume",
+	"la rancoeur",
+	"l'interjection",
 	"l'insolence",
-	"l’impatience",
+	"l'impatience",
 	"la rogne",
 	"la merde",
-	"l’agressivité",
-	"l’excitation",
-	"l’acrimonie",
+	"l'agressivité",
+	"l'excitation",
+	"l'acrimonie",
 	"la frénésie",
 	"la tension",
 	"la rage",
 	"la fureur",
 	"la rancune",
-	"l’explosion",
-	"l’animosité",
+	"l'explosion",
+	"l'animosité",
 	"la grogne",
-	"l’exaspération",
-	"l’irritabilité",
+	"l'exaspération",
+	"l'irritabilité",
 	"la furie",
 	"la vengeance",
-	"l’irascibilité",
+	"l'irascibilité",
 	"la bouffée",
 	"la luxure",
 	"la violence",
@@ -54,8 +54,8 @@
 	"la révolte",
 	"la culpabilité",
 	"la foudre",
-	"l’aigreur",
-	"l’injustice",
+	"l'aigreur",
+	"l'injustice",
 	"la concupiscence"
 	],
 	"verb.s": [
@@ -106,7 +106,7 @@
 		"déverse",
 		"indigne"
 	],
-	"nom.p": [
+	"nom.p.M": [
 
 
 		"les abattements",
@@ -163,7 +163,7 @@
 	"les aigreurs",
 	"les injustices",
 	"les concupiscences",
-	"les rancœurs",
+	"les rancoeurs",
 	"les irascibilités",
 	"les bouffées",
 	"les luxures",
@@ -210,7 +210,7 @@
 		"rigoureux"
 	],
 	"adj.p.F": [
-         "urgentes",
+		"urgentes",
 		"insatiables",
 		"grandissantes",
 		"organisées",
@@ -247,7 +247,7 @@
 	"cod": [
 		"des violences inadmissibles",
 		"des colères sincères",
-		"d’aucunes indulgences",
+		"d'aucunes indulgences",
 		"des heurts",
 		"des irresponsables politiques",
 		"des désaccords",
@@ -257,7 +257,7 @@
 		"de la société",
 		"des revendications légitimes",
 		"des bâtiments publics",
-		"du désordre et l’anarchie",
+		"du désordre et l'anarchie",
 		"de la République",
 		"des désaccords",
 		"des comportements inacceptables",
@@ -265,7 +265,7 @@
 		"des retraités modestes",
 		"des modes de vie qui créent des barrières",
 		"de la distance",
-		"de l’état d’urgence économique et sociale"
+		"de l'état d'urgence économique et sociale"
 	],
 	"prop": [
 		"{nom.s.F} {verb.s} {nom.p.F} {adj.p.F} {cod}",
@@ -296,7 +296,7 @@
 		"certes {prop} mais {prop}.",
 		"nous devons garder en tête que {prop} sans oublier que {prop}.",
 		"à ce jour, deux points sont à retenir : - {prop} - {prop}.",
-		"sommes-nous sûr que {prop} ? non me direz-vous, seul {prop}.",
+		"sommes-nous sûr que {prop} ? Non me direz-vous, seul {prop}.",
 		"il est urgent que {prop} pour que {prop}.",
 		"on pense souvent que {prop}, cela vient du faite que {prop}",
 		"{prop}, et cela nous conduit à croire que {prop}",

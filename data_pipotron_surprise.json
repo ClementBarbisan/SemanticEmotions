@@ -1,16 +1,16 @@
 {
 	"nom.s.M" : [
-	"l’étonnement général",
+	"l'étonnement général",
 	"le bouleversement",
-	"l’ahurissement",
-	"l’éblouissement",
-	"l’aléa",
+	"l'ahurissement",
+	"l'éblouissement",
+	"l'aléa",
 	"le cas fortuit",
-	"l’imprévu",
-	"l’accident",
-	"l’aléatoire",
+	"l'imprévu",
+	"l'accident",
+	"l'aléatoire",
 	"l'inattendu",
-	"l’imprévisible",
+	"l'imprévisible",
 	"l”impondérable"
 	],
 		"nom.s.F" : [
@@ -20,7 +20,7 @@
 	"la stupeur",
 	"la coïncidence",
 	"l'occurrence",
-	"l’indétermination",
+	"l'indétermination",
 	"la contingence",
 	"la conjoncture"
 	],
@@ -178,7 +178,7 @@
 		"certes {prop} mais {prop}.",
 		"nous devons garder en tête que {prop} sans oublier que {prop}.",
 		"à ce jour, deux points sont à retenir : - {prop} - {prop}.",
-		"sommes-nous sûr que {prop} ? non me direz-vous, seul {prop}.",
+		"sommes-nous sûr que {prop} ? Non me direz-vous, seul {prop}.",
 		"il est urgent que {prop} pour que {prop}.",
 		"on pense souvent que {prop}, cela vient du faite que {prop}",
 		"{prop}, et cela nous conduit à croire que {prop}",
