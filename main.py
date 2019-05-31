@@ -345,26 +345,35 @@ class NcsWorkerEm(BaseNcsWorker):
                     if self.oldEm != emotion :
                         self.oldEm = emotion
                         self.oldTime = int(time.time())
-                    if int(time.time()) > self.oldTime and emotion != LABELS[0] or time.time() > self.oldTime + 2 and emotion == LABELS[0] :
+                    if int(time.time()) > self.oldTime + 2 and emotion != LABELS[0] or time.time() > self.oldTime + 5 and emotion == LABELS[0] :
                         index = 0
                         tmpOut = out.copy()
-                        
+                        random.seed(time.time())
                         print(tmpOut)
                         for i in range(0, len(out)) :
-                            if tmpOut[i] <= 0.2 :
-                                tmpOut[i] = tmpOut[i] * 5
+                            if tmpOut[i] <= 0.2 and tmpOut[i] * 6 <= 1.0:
+                                tmpOut[i] = tmpOut[i] * 6
                         print(tmpOut)
                         sentence = random.choice(data["phr"])
                         regex = re.compile("{[\S]+}")
+                        oldValues = [0.0, 0.0, 0.0, 0.0, 0.0]
+                        index_shuf = list(range(len(tmpOut)))
                         while re.search(regex, sentence) is not None:
-                            if index % len(tmpOut) == 0 :
-                                random.shuffle(tmpOut)
+                            if index % len(index_shuf) == 0 :
+                                random.seed(time.time())
+                                random.shuffle(index_shuf)
                                 index = 0
                                 print(tmpOut)
                             pattern = re.search(regex, sentence).group(0)
                             word = pattern.replace("{", "")
                             word = word.replace("}", "")
-                            sentence = sentence.replace(pattern, data[word][int(tmpOut[index] * (len(data[word])) - 1)], 1)
+                            if len(oldValues) < index and int(oldValues[index_shuf[index]] * (len(data[word])) - 1) == int(tmpOut[index_shuf[index]] * (len(data[word])) - 1) :
+                                if tmpOut[index_suf[index]] + 1.0 / len(data[word]) <= 1.0 :
+                                    tmpOut[index_shuf[index]] = tmpOut[index_shuf[index]] + 1.0 / len(data[word])
+                                else :
+                                    tmpOut[index_shuf[index]] = tmpOut[index_shuf[index]] - 1.0 / len(data[word])
+                            sentence = sentence.replace(pattern, data[word][int(tmpOut[index_shuf[index]] * (len(data[word])) - 1)], 1)
+                            oldValues[index_shuf[index]] = tmpOut[index_shuf[index]]
                             index = index + 1
                         dirty_sentence = True
                         #sentence = sentence.lower()
