@@ -180,7 +180,7 @@
 	],
 	
 	"phr": [
-		"{prop}",
+		"{prop}.",
 		"s'il est vrai que {prop}, n'oublions pas que seul {prop}.",
 		"en effet, {prop}, mais, malgré tout {prop}.",
 		"{prop} de part le fait que {prop}.",
@@ -204,11 +204,11 @@
 		"à ce jour, deux points sont à retenir : - {prop} - {prop}.",
 		"sommes-nous sûr que {prop} ? Non me direz-vous, seul {prop}.",
 		"il est urgent que {prop} pour que {prop}.",
-		"on pense souvent que {prop}, cela vient du faite que {prop}",
-		"{prop}, et cela nous conduit à croire que {prop}",
-		"on n'est pas surpris lorsque {prop}, cependant lorsque {prop} et que {prop} alors {prop}",
-		"c'est en se souvenant que {prop} qu'on s'assure que {prop}",
-		"on dit que {prop}, mais en vérité {prop}",
-		"on dit que {prop}, on dit également que {prop}. est-ce bien crédible ?"
+		"on pense souvent que {prop}, cela vient du faite que {prop}.",
+		"{prop}, et cela nous conduit à croire que {prop}.",
+		"on n'est pas surpris lorsque {prop}, cependant lorsque {prop} et que {prop} alors {prop}.",
+		"c'est en se souvenant que {prop} qu'on s'assure que {prop}.",
+		"on dit que {prop}, mais en vérité {prop}.",
+		"on dit que {prop}, on dit également que {prop}. Est-ce bien crédible ?"
 	]
 }

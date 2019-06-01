@@ -31,7 +31,6 @@ import re
 from fpdf import FPDF
 from tkinter import *
 
-
 lastresults = None
 threads = []
 processes = []
@@ -48,6 +47,7 @@ vs = None
 window_name = ""
 elapsedtime = 0.0
 sentence = ""
+img = None
 dirty_sentence = True
 g_plugin = None
 g_inferred_request = None
@@ -55,6 +55,7 @@ g_heap_request = None
 g_inferred_cnt = 0
 g_number_of_allocated_ncs = 0
 g_files_em = {}
+printer = "Samsung_M2070_Series"
 LABELS = ["neutral", "happy", "sad", "surprise", "anger"]
 COLORS = np.random.uniform(0, 255, size=(len(LABELS), 3))
 
@@ -286,6 +287,7 @@ class NcsWorkerEm(BaseNcsWorker):
     def predict_async(self):
         global sentence
         global dirty_sentence
+        global img
         try:
 
             if self.resultsFd.empty():
@@ -339,21 +341,21 @@ class NcsWorkerEm(BaseNcsWorker):
                     
                     emotion = LABELS[int(np.argmax(out))]
                     data = self.files_em[emotion]
-                    print(emotion)
+                    #print(emotion)
                     #sentence = data["phr"][int(time.time() / 360) % len(data["phr"])]
                     
                     if self.oldEm != emotion :
                         self.oldEm = emotion
                         self.oldTime = int(time.time())
-                    if int(time.time()) > self.oldTime + 2 and emotion != LABELS[0] or time.time() > self.oldTime + 5 and emotion == LABELS[0] :
+                    if int(time.time()) > self.oldTime + 1 and emotion != LABELS[0] or time.time() > self.oldTime + 3 and emotion == LABELS[0] :
                         index = 0
                         tmpOut = out.copy()
                         random.seed(time.time())
-                        print(tmpOut)
+                        #print(tmpOut)
                         for i in range(0, len(out)) :
                             if tmpOut[i] <= 0.2 and tmpOut[i] * 6 <= 1.0:
                                 tmpOut[i] = tmpOut[i] * 6
-                        print(tmpOut)
+                        #print(tmpOut)
                         sentence = random.choice(data["phr"])
                         regex = re.compile("{[\S]+}")
                         oldValues = [0.0, 0.0, 0.0, 0.0, 0.0]
@@ -363,34 +365,75 @@ class NcsWorkerEm(BaseNcsWorker):
                                 random.seed(time.time())
                                 random.shuffle(index_shuf)
                                 index = 0
-                                print(tmpOut)
+                                print(index_shuf)
                             pattern = re.search(regex, sentence).group(0)
                             word = pattern.replace("{", "")
                             word = word.replace("}", "")
-                            if len(oldValues) < index and int(oldValues[index_shuf[index]] * (len(data[word])) - 1) == int(tmpOut[index_shuf[index]] * (len(data[word])) - 1) :
-                                if tmpOut[index_suf[index]] + 1.0 / len(data[word]) <= 1.0 :
+                            if int(oldValues[index_shuf[index]] * (len(data[word])) - 1) == int(tmpOut[index_shuf[index]] * (len(data[word])) - 1) :
+                                print("equals")
+                                if tmpOut[index_shuf[index]] + 1.0 / len(data[word]) <= 1.0 :
                                     tmpOut[index_shuf[index]] = tmpOut[index_shuf[index]] + 1.0 / len(data[word])
                                 else :
                                     tmpOut[index_shuf[index]] = tmpOut[index_shuf[index]] - 1.0 / len(data[word])
                             sentence = sentence.replace(pattern, data[word][int(tmpOut[index_shuf[index]] * (len(data[word])) - 1)], 1)
                             oldValues[index_shuf[index]] = tmpOut[index_shuf[index]]
                             index = index + 1
-                        dirty_sentence = True
+                        
                         #sentence = sentence.lower()
-                        sentence = sentence.capitalize()
+                        sentence = sentence[:1].upper() + sentence[1:]
                         print(sentence)
                         pdf = FPDF('P', 'mm', (645.56, 914))
-                        pdf.set_margins(22, 0)
+                        pdf.set_margins(22, 22)
                         pdf.add_page()
-                        pdf.set_font('Arial', '', 156 / (len(sentence) / (20 * 9)))
-                        pdf.set_auto_page_break(False)
-                        pdf.multi_cell(0, 156 / (len(sentence) / (20 * 9)) * 0.35 * 1.58, sentence, 0, 'L')    
-                        #for i in (0, len(sentence), 20) :
-                        #    pdf.cell(880, 150 / (len(sentence) / (20 * 9)) * 0.35 * 1.16, sentence[i : i + 20], 0, 1, 'L')
-                        pdf.output("./media/" + str(int(time.time())) + ".pdf", 'F')
-                        self.oldTime = int(time.time())
-                        cv2.imwrite("./media/" + str(int(time.time())) + ".png", face_image_list[image_idx - 1])
+                        divider = 1
+                        font_size = 232
+                        while len(sentence.split()) / divider > 3:
+                                #font_size -= 8
+                                divider += 1
                         
+                        #pdf.multi_cell(0, font_size * 0.35 * 1.58, sentence, 0, 'L')    
+                        list_sentence = sentence.split()
+                        while True :
+                            line_nb = 0
+                            index = 0
+                            while index < len(sentence.split()) :
+                                tmp_sentence = ""
+                                tmp_index = index
+                                for j in range(tmp_index, min(tmp_index + divider, len(list_sentence))) :
+                                    index += 1
+                                    tmp_sentence += list_sentence[j]
+                                    tmp_sentence += " "
+                                    if j + 1 < len(list_sentence) and (len(tmp_sentence) + len(list_sentence[j + 1]))* (font_size * 0.35) > 880 :
+                                        break
+                                line_nb += 1
+                            if line_nb * (font_size * 0.35 * 1.58) <= 900 :
+                                break
+                            font_size -= 4
+                        pdf.set_font('Arial', '', font_size)
+                        pdf.set_auto_page_break(False)
+                        pdf.set_margins(22, 0)
+                        index = 0
+                        while index < len(sentence.split()) :
+                            tmp_sentence = ""
+                            tmp_index = index
+                            for j in range(tmp_index, min(tmp_index + divider, len(list_sentence))) :
+                                index += 1
+                                tmp_sentence += list_sentence[j]
+                                tmp_sentence += " "
+                                if j + 1 < len(list_sentence) and (len(tmp_sentence) + len(list_sentence[j + 1]))* (font_size * 0.35) > 880 :
+                                    break
+                            pdf.cell(880, (font_size * 0.35 * 1.58), tmp_sentence, 0, 1, 'L')
+                        current_time = str(int(time.time()))
+                        pdf.output("./media/" + current_time + ".pdf", 'F')
+                        self.oldTime = int(time.time())
+                        gray_img = cv2.cvtColor(face_image_list[image_idx - 1], cv2.COLOR_BGR2GRAY)
+                        gray_img = cv2.addWeighted(gray_img, 1, np.zeros(gray_img.shape, gray_img.dtype),0, 1.5)
+                        img = np.where((255 - gray_img) < 100,255,gray_img + 100)
+                        cv2.imwrite("./media/" + current_time + ".png", img)
+                        
+                        #os.system("lp -d " + printer + " -o media=A4 -o fit-to-page ./media/" + current_time + ".pdf")
+                        #os.system("lp -d " + printer + " -o fit-to-page -o media=A5 ./media/" + current_time + ".png")
+                        dirty_sentence = True
                     detection_list.extend([emotion])
                     self.resultsEm.put([detection_list])
                     self.inferred_request[dev] = 0
