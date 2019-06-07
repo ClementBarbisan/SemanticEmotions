@@ -49,6 +49,7 @@ elapsedtime = 0.0
 sentence = ""
 img = None
 dirty_sentence = True
+font_size = 252
 g_plugin = None
 g_inferred_request = None
 g_heap_request = None
@@ -135,6 +136,7 @@ def camThread(LABELS, resultsEm, frameBuffer, camera_width, camera_height, vidfp
         elapsedTime = t2-t1
         time1 += 1/elapsedTime
         time2 += elapsedTime
+    cam.close()
 
 # l = Search list
 # x = Search target value
@@ -288,6 +290,7 @@ class NcsWorkerEm(BaseNcsWorker):
         global sentence
         global dirty_sentence
         global img
+        global font_size
         try:
 
             if self.resultsFd.empty():
@@ -387,7 +390,7 @@ class NcsWorkerEm(BaseNcsWorker):
                         pdf.add_page()
                         divider = 1
                         font_size = 232
-                        while len(sentence.split()) / divider > 3:
+                        while len(sentence.split()) / divider > 5:
                                 #font_size -= 8
                                 divider += 1
                         
@@ -403,10 +406,10 @@ class NcsWorkerEm(BaseNcsWorker):
                                     index += 1
                                     tmp_sentence += list_sentence[j]
                                     tmp_sentence += " "
-                                    if j + 1 < len(list_sentence) and (len(tmp_sentence) + len(list_sentence[j + 1]))* (font_size * 0.35) > 880 :
+                                    if j + 1 < len(list_sentence) and (len(tmp_sentence) + len(list_sentence[j + 1]))* (font_size * 0.35) > 1200 :
                                         break
                                 line_nb += 1
-                            if line_nb * (font_size * 0.35 * 1.58) <= 900 :
+                            if line_nb * (font_size * 0.35 * 1.58) <= 800 :
                                 break
                             font_size -= 4
                         pdf.set_font('Arial', '', font_size)
@@ -420,9 +423,10 @@ class NcsWorkerEm(BaseNcsWorker):
                                 index += 1
                                 tmp_sentence += list_sentence[j]
                                 tmp_sentence += " "
-                                if j + 1 < len(list_sentence) and (len(tmp_sentence) + len(list_sentence[j + 1]))* (font_size * 0.35) > 880 :
+                                if j + 1 < len(list_sentence) and (len(tmp_sentence) + len(list_sentence[j + 1]))* (font_size * 0.35) > 1200 :
                                     break
-                            pdf.cell(880, (font_size * 0.35 * 1.58), tmp_sentence, 0, 1, 'L')
+                            pdf.cell(0, (font_size * 0.35), tmp_sentence, 0, 1, 'L')
+                            pdf.cell(0, (font_size * 0.35 * 0.58), "", 0, 1, 'L')
                         current_time = str(int(time.time()))
                         pdf.output("./media/" + current_time + ".pdf", 'F')
                         self.oldTime = int(time.time())
@@ -458,8 +462,8 @@ def inferencer(resultsFd, resultsEm, frameBuffer, number_of_ncs, fd_model_path, 
     window.title("SemanticEmotions")
     window.attributes("-fullscreen", True)
     window.configure(background='white')
-    lbl = Message(window, text="Hello", font=("Arial", "56"), anchor="w")
-    lbl.pack()
+    lbl = Message(window, text="Hello", font=("Arial", "52"), anchor="nw")
+    lbl.pack(pady = "22", padx = "22", anchor = "nw")
     lbl.configure(background='white')
     for devid in range(number_of_ncs):
         # Face Detection, Emotion Recognition start
@@ -470,7 +474,8 @@ def inferencer(resultsFd, resultsEm, frameBuffer, number_of_ncs, fd_model_path, 
         print("Thread-"+str(devid))
     while True:
         if dirty_sentence :
-            lbl.configure(text=sentence, font=("Arial", "56"), anchor="w")
+            lbl.configure(text=sentence, font=("Arial", str(int(font_size / 3))), anchor="nw")
+            lbl.pack(pady = "22", padx = "22", anchor = "nw")
             window.update_idletasks()
             window.update()
             dirty_sentence = False
@@ -608,5 +613,5 @@ if __name__ == '__main__':
     finally:
         for p in range(len(processes)):
             processes[p].terminate()
-
+        cam.close()
         print("\n\nFinished\n\n")
