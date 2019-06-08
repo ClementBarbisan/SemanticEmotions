@@ -474,7 +474,7 @@ def inferencer(resultsFd, resultsEm, frameBuffer, number_of_ncs, fd_model_path, 
         print("Thread-"+str(devid))
     while True:
         if dirty_sentence :
-            lbl.configure(text=sentence, font=("Arial", str(int(font_size / 3))), anchor="nw")
+            lbl.configure(text=sentence, font=("Arial", str(int(font_size / 4))), anchor="nw")
             lbl.pack(pady = "22", padx = "22", anchor = "nw")
             window.update_idletasks()
             window.update()
